@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 def Rt(xyr, xym):
   '''Implement https://en.wikipedia.org/wiki/Procrustes_analysis to match
-  moving to referene.'''
+  moving to reference.'''
 
   from dials.array_family import flex
   import math
