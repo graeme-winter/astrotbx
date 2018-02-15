@@ -41,7 +41,13 @@ def Rt(xyr, xym):
 
   rmsd /= n
 
-  return R, (dx, dy), math.sqrt(rmsd), n
+  # now compute additional t component due to rotation about origin not centre
+  # of mass
+
+  t0 = matrix.col((xm0, ym0)) - R * (xm0, ym0)
+  t = t0 + matrix.col((dx, dy))
+
+  return R, t.elems, math.sqrt(rmsd), n
 
 def matcher(reference, moving, params):
   from annlib_ext import AnnAdaptor as ann_adaptor
@@ -70,4 +76,17 @@ def matcher(reference, moving, params):
 
   # compute Rt
 
-  return Rt(xyr, xym)
+  R, t, d, n = Rt(xyr, xym)
+
+  # verify matches in original image coordinate system
+
+  from scitbx import matrix
+  import math
+  _R = matrix.sqr(R)
+  rmsd = 0.0
+  for j, _xym in enumerate(xym):
+    _xymm = _R * _xym + matrix.col(t)
+    rmsd += (matrix.col(xyr[j]) - _xymm).length() ** 2
+  assert abs(math.sqrt(rmsd / xym.size()) - d) < 1e-6
+
+  return R, t, d, n
