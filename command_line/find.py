@@ -29,11 +29,24 @@ def run(args):
 
   from astrotbx.io.loader import load_image_gs
   from astrotbx.algorithms.star_find import find
+  from dials.array_family import flex
 
-  for arg in args:
+  all = None
+
+  for j, arg in enumerate(args):
     image = load_image_gs(arg)
     stars = find(image, params)
     print("On %s found %d stars" % (arg, stars.size()))
+    if all is None:
+      all = stars
+    else:
+      x, y, z = stars['xyzobs.px.value'].parts()
+      z += j
+      stars['xyzobs.px.value'] = flex.vec3_double(x, y, z)
+      all.extend(stars)
+
+  print("Saving %d stars to %s" % (all.size(), params.output))
+  all.as_pickle(params.output)
 
 if __name__ == '__main__':
   import sys
