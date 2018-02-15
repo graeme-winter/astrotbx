@@ -55,11 +55,12 @@ def run(args):
   datum_z = zs[len(zs) // 2]
   datum = stars.select(z == datum_z)
 
-  zs.remove(datum_z)
-
   Rtds = []
 
   for _z in zs:
+    if _z == datum_z:
+      Rtds.append({'R':(1,0,0,1), 't':(0,0), 'd':0, 'n':datum.size()})
+      continue
     move = stars.select(z == _z)
     if params.randomize:
       x, y, a = move['xyzobs.px.value'].parts()
