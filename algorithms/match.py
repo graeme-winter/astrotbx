@@ -11,22 +11,12 @@ def Rt(xyr, xym):
   xm, ym = xym.parts()
 
   # compute centre of mass shift
-  xr0 = flex.sum(xr) / xr.size()
-  yr0 = flex.sum(yr) / yr.size()
+  xr0, yr0 = flex.sum(xr) / xr.size(), flex.sum(yr) / yr.size()
+  xm0, ym0 = flex.sum(xm) / xm.size(), flex.sum(ym) / ym.size()
+  dx, dy = xr0 - xm0, yr0 - ym0
 
-  xm0 = flex.sum(xm) / xm.size()
-  ym0 = flex.sum(ym) / ym.size()
-
-  dx = xm0 - xr0
-  dy = ym0 - yr0
-
-  print("COM shift: %f %f" % (dx, dy))
-
-  xr -= xr0
-  yr -= yr0
-
-  xm -= xm0
-  ym -= ym0
+  xr, yr = xr - xr0, yr - yr0
+  xm, ym = xm - xm0, ym - ym0
 
   # compute angle theta
   tan_theta = sum([_xm * _yr - _ym * _xr for _xr, _yr, _xm, _ym in
@@ -35,10 +25,20 @@ def Rt(xyr, xym):
                    zip(xr, yr, xm, ym)])
   theta = math.atan(tan_theta)
 
-  print("Rotation: %f degrees" % (theta * 180.0 / math.pi))
-
   # compose Rt matrix, verify that the RMSD is small between xyr and Rt * xym
+  from scitbx import matrix
+  R = matrix.sqr((math.cos(theta), - math.sin(theta),
+                  math.sin(theta), math.cos(theta)))
 
+  rmsd = 0
+  for j, (_xm, _ym) in enumerate(zip(xm, ym)):
+    _xr, _yr = xr[j], yr[j]
+    _xmr, _ymr = R * (_xm, _ym)
+    rmsd += (_xmr - _xr) ** 2 + (_ymr - _yr) ** 2
+
+  rmsd /= len(xm)
+
+  return R, (dx, dy), math.sqrt(rmsd)
 
 def matcher(reference, moving, params):
   from annlib_ext import AnnAdaptor as ann_adaptor
