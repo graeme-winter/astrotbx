@@ -7,6 +7,9 @@ def Rt(xyr, xym):
   from dials.array_family import flex
   import math
 
+  n = xyr.size()
+  assert xym.size() == n
+
   xr, yr = xyr.parts()
   xm, ym = xym.parts()
 
@@ -36,9 +39,9 @@ def Rt(xyr, xym):
     _xmr, _ymr = R * (_xm, _ym)
     rmsd += (_xmr - _xr) ** 2 + (_ymr - _yr) ** 2
 
-  rmsd /= len(xm)
+  rmsd /= n
 
-  return R, (dx, dy), math.sqrt(rmsd)
+  return R, (dx, dy), math.sqrt(rmsd), n
 
 def matcher(reference, moving, params):
   from annlib_ext import AnnAdaptor as ann_adaptor
@@ -55,8 +58,6 @@ def matcher(reference, moving, params):
   distances = flex.sqrt(ann.distances)
 
   matches = (distances < params.close)
-
-  print("%d of %d matches" % (matches.count(True), matches.size()))
 
   xyr = flex.vec2_double()
   xym = flex.vec2_double()
