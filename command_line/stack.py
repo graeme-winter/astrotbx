@@ -5,6 +5,10 @@ import iotbx.phil
 phil_scope = iotbx.phil.parse("""
   alignments = rotations.json
     .type = path
+  scale = 1.0
+    .type = float
+  output = stacked.png
+    .type = path
 """, process_includes=False)
 
 def run(args):
@@ -24,3 +28,45 @@ def run(args):
 
   Rtds = json.load(open(params.alignments))
   assert len(Rtds) == len(args)
+
+  sum_image_r = None
+  sum_image_g = None
+  sum_image_b = None
+
+  from astrotbx.io.loader import load_image
+  from astrotbx.io.saver import save_image
+  from astrotbx.algorithms.image_align import rotate_translate_array
+
+  for image, alignment in zip(args, Rtds):
+    R, t = alignment['R'], alignment['t']
+    r, g, b = load_image(image)
+    _r = rotate_translate_array(r, R, t)
+    _g = rotate_translate_array(g, R, t)
+    _b = rotate_translate_array(b, R, t)
+
+    if sum_image_r is None:
+      sum_image_r = r
+    else:
+      sum_image_r += r
+
+    if sum_image_g is None:
+      sum_image_g = g
+    else:
+      sum_image_g += g
+
+    if sum_image_b is None:
+      sum_image_b = b
+    else:
+      sum_image_b += b
+
+  # output the image
+
+  sum_image_r *= params.scale / len(args)
+  sum_image_g *= params.scale / len(args)
+  sum_image_b *= params.scale / len(args)
+
+  save_image(params.output, sum_image_r, sum_image_g, sum_image_b)
+
+if __name__ == '__main__':
+  import sys
+  run(sys.argv[1:])
