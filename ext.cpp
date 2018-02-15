@@ -10,7 +10,7 @@
 #include <scitbx/array_family/boost_python/flex_wrapper.h>
 #include <scitbx/array_family/accessors/c_grid.h>
 
-namespace fractbx {
+namespace astrotbx {
   namespace ext {
 
     static scitbx::af::versa< int, scitbx::af::c_grid<2> > make_flex(size_t n)
@@ -27,9 +27,9 @@ namespace fractbx {
     }
 
   }
-} // namespace fractbx::ext
+} // namespace astrotbx::ext
 
-BOOST_PYTHON_MODULE(fractbx_ext)
+BOOST_PYTHON_MODULE(astrotbx_ext)
 {
-  fractbx::ext::init_module();
+  astrotbx::ext::init_module();
 }
