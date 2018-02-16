@@ -5,6 +5,6 @@ def rotate_translate_array(image, R, t):
   from scipy.ndimage import affine_transform
   import numpy
 
-  matrix = numpy.array([[R[0], R[1]], [R[2], R[3]]])
+  matrix = numpy.array([[R[0], R[1], t[0]], [R[2], R[3], t[1]]])
 
-  return flex.double(affine_transform(image.as_numpy_array(), matrix, offset=t))
+  return flex.double(affine_transform(image.as_numpy_array(), matrix))
