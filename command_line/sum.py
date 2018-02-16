@@ -28,8 +28,8 @@ def run(args):
   sum_image_g = None
   sum_image_b = None
 
-  from astrotbx.io.loader import load_image
-  from astrotbx.io.saver import save_image
+  from astrotbx.input_output.loader import load_image
+  from astrotbx.input_output.saver import save_image
 
   for image in args:
     r, g, b = load_image(image)

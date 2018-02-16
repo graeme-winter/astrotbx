@@ -27,7 +27,7 @@ def run(args):
   params, options, args = parser.parse_args(show_diff_phil=True,
                                             return_unhandled=True)
 
-  from astrotbx.io.loader import load_image_gs
+  from astrotbx.input_output.loader import load_image_gs
   from astrotbx.algorithms.star_find import find
   from dials.array_family import flex
 
