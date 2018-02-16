@@ -10,11 +10,15 @@ def save_image(filename, r, g, b):
   gi = g.iround()
   bi = b.iround()
 
-  # prevent saturation of pixels > 0xff
+  # prevent saturation of pixels > 0xff and underloads < 0
 
   ri.set_selected(ri > 255, 255)
   gi.set_selected(gi > 255, 255)
   bi.set_selected(bi > 255, 255)
+
+  ri.set_selected(ri < 0, 0)
+  gi.set_selected(gi < 0, 0)
+  bi.set_selected(bi < 0, 0)
 
   rn = Image.fromarray(numpy.uint8(ri.as_numpy_array()))
   gn = Image.fromarray(numpy.uint8(gi.as_numpy_array()))
