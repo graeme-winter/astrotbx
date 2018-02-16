@@ -71,6 +71,9 @@ def run(args):
     R, t, d, n = matcher(datum, move, params)
     Rtds.append({'R':R.elems, 't':t, 'd':d, 'n':n})
 
+  for j, Rtd in enumerate(Rtds):
+    print('%3d %.4f %3d' % (j, Rtd['d'], Rtd['n']))
+
   import json
   json.dump(Rtds, open(params.output, 'w'))
 
