@@ -66,7 +66,7 @@ def test_matcher():
   # assert results
   assert d < 1e-6
   assert sum((R2 * R - matrix.sqr((1, 0, 0, 1))).elems) < 1e-9
-  assert sum((- R * t2 - t).elems) < 1e-9
+  assert sum((- R2.inverse() * t2 - t).elems) < 1e-9
 
 if __name__ == '__main__':
   test_matcher()
