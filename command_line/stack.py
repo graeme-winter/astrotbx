@@ -45,19 +45,19 @@ def run(args):
     _b = rotate_translate_array(b, R, t)
 
     if sum_image_r is None:
-      sum_image_r = r
+      sum_image_r = _r
     else:
-      sum_image_r += r
+      sum_image_r += _r
 
     if sum_image_g is None:
-      sum_image_g = g
+      sum_image_g = _g
     else:
-      sum_image_g += g
+      sum_image_g += _g
 
     if sum_image_b is None:
-      sum_image_b = b
+      sum_image_b = _b
     else:
-      sum_image_b += b
+      sum_image_b += _b
 
   # output the image
 
