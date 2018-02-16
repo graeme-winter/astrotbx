@@ -24,7 +24,7 @@ def run(args):
   from dials.util.options import OptionParser
   import libtbx.load_env
 
-  usage = "%s [options] DSC03206.jpg" % (
+  usage = "%s [options] stars.pickle" % (
     libtbx.env.dispatcher_name)
 
   parser = OptionParser(
