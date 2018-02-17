@@ -3,6 +3,67 @@ from __future__ import absolute_import, division, print_function
 class empty:
   pass
 
+def background(image, mean_bg):
+  from scitbx.random import variate, poisson_distribution
+  dy, dx = image.focus()
+  g = variate(poisson_distribution(mean = mean_bg))
+  for j in range(dy):
+    for i in range(dx):
+      image[j, i] += next(g)
+  return image
+
+def random_positions(n, amount):
+  from scitbx.random import variate, normal_distribution
+  from dials.array_family import flex
+  g = variate(normal_distribution(mean=0, sigma=amount))
+  xy = flex.vec2_double(n)
+  for j in range(n):
+    xy[j] = (next(g), next(g))
+  return xy
+
+def make_test_image():
+  from scitbx import matrix
+  from dials.array_family import flex
+  import random
+  import math
+
+  xmin, xmax = 0, 4272
+  ymin, ymax = 0, 2848
+  buffer = 100
+  n = 30
+
+  # generate n random positions - well within field of view
+
+  x = flex.double(n)
+  y = flex.double(n)
+  z = flex.double(n, 0.0)
+
+  for j in range(n):
+    x[j] = random.uniform(xmin+buffer, xmax-buffer)
+    y[j] = random.uniform(ymin+buffer, ymax-buffer)
+
+  r = background(flex.double(flex.grid(ymax, xmax), 0.0), 3)
+  g = background(flex.double(flex.grid(ymax, xmax), 0.0), 3)
+  b = background(flex.double(flex.grid(ymax, xmax), 0.0), 3)
+
+  # add some stars
+
+  for xy in zip(x, y):
+    star_x, star_y = random_positions(1000, 1).parts()
+    star_x += xy[0]
+    star_y += xy[1]
+    for i, j in zip(star_x.iround(), star_y.iround()):
+      r[j,i] += 1
+      g[j,i] += 1
+      b[j,i] += 1
+
+  from astrotbx.input_output.saver import save_image
+  save_image('example.png', r, g, b)
+
+
+def test_finder():
+  pass
+
 def test_matcher():
   from scitbx import matrix
   from dials.array_family import flex
@@ -21,8 +82,8 @@ def test_matcher():
   z = flex.double(n, 0.0)
 
   for j in range(n):
-    x[j] = random.uniform(xmin+buffer,xmax-buffer)
-    y[j] = random.uniform(ymin+buffer,ymax-buffer)
+    x[j] = random.uniform(xmin+buffer, xmax-buffer)
+    y[j] = random.uniform(ymin+buffer, ymax-buffer)
 
   # generate small rotation / translation - 0.25 degrees is one minute
   # of earth rotation
@@ -70,3 +131,4 @@ def test_matcher():
 
 if __name__ == '__main__':
   test_matcher()
+  make_test_image()
