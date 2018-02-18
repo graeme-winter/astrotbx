@@ -66,7 +66,7 @@ def run(args):
     _R, _t = matrix.sqr(Rtds[-1]['R']), matrix.col(Rtds[-1]['t'])
     R, t, d, n = matcher(datum, move, params)
 
-    # compose with previous to map back to datum i.e. 0-th positions
+    # compose with previous to map back to datum i.e. 0-th image positions
     Rc = R * _R
     tc = R * _t + matrix.col(t)
 
