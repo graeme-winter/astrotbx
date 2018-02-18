@@ -49,6 +49,13 @@ def Rt(xyr, xym):
 
   return R, t.elems, math.sqrt(rmsd), n
 
+def IQR(array):
+  n = array.size()
+  median = array[int(round(0.5 * n))]
+  q1 = array[int(round(0.25 * n))]
+  q3 = array[int(round(0.75 * n))]
+  return q1, median, q3, q3 - q1
+
 def matcher(reference, moving, params):
   from annlib_ext import AnnAdaptor as ann_adaptor
   from dials.array_family import flex
@@ -73,6 +80,20 @@ def matcher(reference, moving, params):
       continue
     xym.append(mxy[j])
     xyr.append(rxy[ann.nn[j]])
+
+  # filter outliers - use IQR etc.
+  dxy = xym - xyr
+
+  dx, dy = dxy.parts()
+
+  iqx = IQR(dx.select(flex.sort_permutation(dx)))
+  iqy = IQR(dy.select(flex.sort_permutation(dy)))
+
+  keep_x = (dx > (iqx[0] - iqx[3])) & (dx < (iqx[2] + iqx[3]))
+  keep_y = (dy > (iqy[0] - iqy[3])) & (dy < (iqy[2] + iqy[3]))
+  keep = keep_x & keep_y
+  xyr = xyr.select(keep)
+  xym = xym.select(keep)
 
   # compute Rt
 

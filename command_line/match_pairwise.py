@@ -72,6 +72,9 @@ def run(args):
 
     Rtds.append({'R':Rc.elems, 't':tc.elems, 'd':d, 'n':n})
 
+  for j, Rtd in enumerate(Rtds):
+    print('%3d %.4f %3d' % (j, Rtd['d'], Rtd['n']))
+
   import json
   json.dump(Rtds, open(params.output, 'w'))
 
