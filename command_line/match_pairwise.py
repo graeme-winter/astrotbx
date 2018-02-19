@@ -36,7 +36,7 @@ def run(args):
 
   from dials.array_family import flex
   import cPickle as pickle
-  from astrotbx.algorithms.match import matcher
+  from astrotbx.algorithms.match import matcher, pair_up, compute_Rt
 
   stars = None
 
@@ -56,6 +56,9 @@ def run(args):
   Rtds.append({'R':(1,0,0,1), 't':(0,0), 'd':0, 'n':0})
 
   from scitbx import matrix
+  import math
+
+  datum0 = stars.select(z == zs[0])
 
   for j in range(len(zs) - 1):
     _r = zs[j]
@@ -63,12 +66,19 @@ def run(args):
     datum = stars.select(z == _r)
     move = stars.select(z == _z)
 
-    _R, _t = matrix.sqr(Rtds[-1]['R']), matrix.col(Rtds[-1]['t'])
+    # get the moves for this step
     R, t, d, n = matcher(datum, move, params)
 
     # compose with previous to map back to datum i.e. 0-th image positions
-    Rc = R * _R
-    tc = R * _t + matrix.col(t)
+    _R, _t = matrix.sqr(Rtds[-1]['R']), matrix.col(Rtds[-1]['t'])
+    Rc = matrix.sqr(R) * _R
+    tc = matrix.sqr(R) * _t + matrix.col(t)
+
+    # refine w.r.t. datum positions... seems to drift
+    rsel, msel = pair_up(datum0, move, params, Rc, tc)
+
+    R1, t1, d1, n1 = compute_Rt(datum0.select(rsel), move.select(msel))
+    print(n1, d1)
 
     # now use this stack to match up with the datum stars i.e. apply to star
     # positions, match then use that iselection to derive the full Rt =>

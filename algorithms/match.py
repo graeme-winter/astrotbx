@@ -56,6 +56,69 @@ def IQR(array):
   q3 = array[int(round(0.75 * n))]
   return q1, median, q3, q3 - q1
 
+def pair_up(reference, moving, params, R0, t0):
+  from annlib_ext import AnnAdaptor as ann_adaptor
+  from dials.array_family import flex
+
+  rxyz = reference['xyzobs.px.value'].parts()
+  mxyz = moving['xyzobs.px.value'].parts()
+
+  # apply R0, t0 before performing matching - so should ideally be in almost
+  # right position
+
+  rxy = flex.vec2_double(rxyz[0], rxyz[1])
+  _mxy = flex.vec2_double(mxyz[0], mxyz[1])
+  mxy = flex.vec2_double()
+  for __mxy in _mxy:
+    mxy.append((R0 * __mxy + t0).elems)
+
+  ann = ann_adaptor(rxy.as_double().as_1d(), 2)
+  ann.query(mxy.as_double().as_1d())
+  distances = flex.sqrt(ann.distances)
+
+  matches = (distances < params.close)
+
+  rsel = flex.size_t()
+  msel = flex.size_t()
+
+  xyr = flex.vec2_double()
+  xym = flex.vec2_double()
+
+  for j in range(matches.size()):
+    if not matches[j]:
+      continue
+    msel.append(j)
+    rsel.append(ann.nn[j])
+    xym.append(mxy[j])
+    xyr.append(rxy[ann.nn[j]])
+
+  # filter outliers - use IQR etc.
+  dxy = xym - xyr
+
+  dx, dy = dxy.parts()
+
+  iqx = IQR(dx.select(flex.sort_permutation(dx)))
+  iqy = IQR(dy.select(flex.sort_permutation(dy)))
+
+  keep_x = (dx > (iqx[0] - iqx[3])) & (dx < (iqx[2] + iqx[3]))
+  keep_y = (dy > (iqy[0] - iqy[3])) & (dy < (iqy[2] + iqy[3]))
+  keep = keep_x & keep_y
+
+  return rsel.select(keep), msel.select(keep)
+
+def compute_Rt(reference, moving):
+  from dials.array_family import flex
+
+  rxyz = reference['xyzobs.px.value'].parts()
+  mxyz = moving['xyzobs.px.value'].parts()
+
+  rxy = flex.vec2_double(rxyz[0], rxyz[1])
+  mxy = flex.vec2_double(mxyz[0], mxyz[1])
+
+  # compute Rt
+
+  return Rt(rxy, mxy)
+
 def matcher(reference, moving, params):
   from annlib_ext import AnnAdaptor as ann_adaptor
   from dials.array_family import flex
