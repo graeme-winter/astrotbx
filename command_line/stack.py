@@ -38,6 +38,7 @@ def run(args):
   from astrotbx.algorithms.image_align import rotate_translate_array
 
   for image, alignment in zip(args, Rtds):
+    print("Loading %s" % image)
     R, t = alignment['R'], alignment['t']
     r, g, b = load_image(image)
     _r = rotate_translate_array(r, R, t)

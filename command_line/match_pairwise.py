@@ -70,6 +70,13 @@ def run(args):
     Rc = R * _R
     tc = R * _t + matrix.col(t)
 
+    # now use this stack to match up with the datum stars i.e. apply to star
+    # positions, match then use that iselection to derive the full Rt =>
+    # will involve refactor... N.B. need to do outlier rejection after matching
+    # but before mapping back / Rt calculation. 
+
+    # the re-compute the full Rt from datum to this time point
+
     Rtds.append({'R':Rc.elems, 't':tc.elems, 'd':d, 'n':n})
 
   for j, Rtd in enumerate(Rtds):
