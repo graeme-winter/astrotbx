@@ -73,7 +73,7 @@ def run(args):
     # now use this stack to match up with the datum stars i.e. apply to star
     # positions, match then use that iselection to derive the full Rt =>
     # will involve refactor... N.B. need to do outlier rejection after matching
-    # but before mapping back / Rt calculation. 
+    # but before mapping back / Rt calculation.
 
     # the re-compute the full Rt from datum to this time point
 
