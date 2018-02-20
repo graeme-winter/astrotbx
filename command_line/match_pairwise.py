@@ -78,7 +78,6 @@ def run(args):
     rsel, msel = pair_up(datum0, move, params, Rc, tc)
 
     R1, t1, d1, n1 = compute_Rt(datum0.select(rsel), move.select(msel))
-    print(n1, d1)
 
     # now use this stack to match up with the datum stars i.e. apply to star
     # positions, match then use that iselection to derive the full Rt =>
@@ -87,7 +86,7 @@ def run(args):
 
     # the re-compute the full Rt from datum to this time point
 
-    Rtds.append({'R':Rc.elems, 't':tc.elems, 'd':d, 'n':n})
+    Rtds.append({'R':R1.elems, 't':t1, 'd':d1, 'n':n1})
 
   for j, Rtd in enumerate(Rtds):
     print('%3d %.4f %3d' % (j, Rtd['d'], Rtd['n']))
