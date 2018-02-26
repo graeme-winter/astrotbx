@@ -7,6 +7,8 @@ phil_scope = iotbx.phil.parse("""
     .type = path
   scale = 1.0
     .type = float
+  raw = False
+    .type = bool
   output = stacked.png
     .type = path
 """, process_includes=False)
@@ -33,14 +35,18 @@ def run(args):
   sum_image_g = None
   sum_image_b = None
 
-  from astrotbx.input_output.loader import load_image
+  from astrotbx.input_output.loader import load_image, load_raw_image
   from astrotbx.input_output.saver import save_image
   from astrotbx.algorithms.image_align import rotate_translate_array
 
   for image, alignment in zip(args, Rtds):
     print("Loading %s" % image)
     R, t = alignment['R'], alignment['t']
-    r, g, b = load_image(image)
+    if params.raw:
+      r, g, b = load_raw_image(image)
+    else:
+      r, g, b = load_image(image)
+
     _r = rotate_translate_array(r, R, t)
     _g = rotate_translate_array(g, R, t)
     _b = rotate_translate_array(b, R, t)
