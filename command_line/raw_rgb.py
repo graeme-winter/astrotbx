@@ -9,6 +9,10 @@ phil_scope = iotbx.phil.parse("""
     .type = bool
   colour = *r g b
     .type = choice
+  save = None
+    .type = path
+  scale = 1
+    .type = float
 """, process_includes=False)
 
 def loader(image):
@@ -53,6 +57,13 @@ def histogram(params, image):
   n = pixels.slots().as_double()
   pyplot.bar(v, n, log=params.log_n)
   pyplot.savefig(params.output % params.colour)
+
+  if params.save:
+    from astrotbx.input_output.saver import save_image
+    r *= params.scale
+    g *= params.scale
+    b *= params.scale
+    save_image(params.save, r, g, b)
 
 def run(args):
   from dials.util.options import OptionParser
