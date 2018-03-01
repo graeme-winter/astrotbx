@@ -22,6 +22,7 @@ def loader(image):
 
   raw = rawpy.imread(image)
   rgb = raw.postprocess(output_bps=16, no_auto_scale=True,
+                        demosaic_algorithm=rawpy.DemosaicAlgorithm.AAHD,
                         output_color=rawpy.ColorSpace.Wide,
                         no_auto_bright=True, use_camera_wb=True)
   r = flex.double(numpy.double(rgb[:,:,0]))
@@ -50,6 +51,10 @@ def histogram(params, image):
     data = g
   else:
     data = b
+
+  print("Mean / max r: %6.2f / %6.2f" % (flex.mean(r), flex.max(r)))
+  print("Mean / max g: %6.2f / %6.2f" % (flex.mean(g), flex.max(g)))
+  print("Mean / max b: %6.2f / %6.2f" % (flex.mean(b), flex.max(b)))
 
   pixels = flex.histogram(data.as_1d(), data_min=0, data_max=dmax,
                           n_slots=int(dmax))
