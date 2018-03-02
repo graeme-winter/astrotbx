@@ -20,7 +20,7 @@ def gain(image, params):
   from dials.array_family import flex
   from matplotlib import pyplot
 
-  raws = 'arw'
+  raws = ['arw']
   exten = image.split('.')[-1].lower()
   if exten in raws:
     image = load_raw_image_gs(image, params.raw)

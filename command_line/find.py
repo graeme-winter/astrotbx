@@ -34,7 +34,7 @@ def run(args):
 
   all = None
 
-  raws = 'arw'
+  raws = ['arw']
 
   for j, arg in enumerate(args):
     exten = arg.split('.')[-1].lower()

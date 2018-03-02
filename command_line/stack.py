@@ -7,11 +7,10 @@ phil_scope = iotbx.phil.parse("""
     .type = path
   scale = 1.0
     .type = float
-  raw = False
-    .type = bool
   output = stacked.png
     .type = path
-""", process_includes=False)
+  include scope astrotbx.input_output.loader.phil_scope
+""", process_includes=True)
 
 def run(args):
   from dials.util.options import OptionParser
@@ -39,11 +38,14 @@ def run(args):
   from astrotbx.input_output.saver import save_image
   from astrotbx.algorithms.image_align import rotate_translate_array
 
+  raws = ['arw']
+
   for image, alignment in zip(args, Rtds):
     print("Loading %s" % image)
     R, t = alignment['R'], alignment['t']
-    if params.raw:
-      r, g, b = load_raw_image(image)
+    exten = image.split('.')[-1].lower()
+    if exten in raws:
+      r, g, b = load_raw_image(image, params.raw)
     else:
       r, g, b = load_image(image)
 
