@@ -1,5 +1,22 @@
 from __future__ import absolute_import, division, print_function
 
+def save_image_gs(filename, gs):
+  '''Save greyscale image.'''
+
+  import numpy
+  from PIL import Image
+
+  gsi = gs.iround()
+
+  # prevent saturation of pixels > 0xff and underloads < 0
+
+  gsi.set_selected(gsi > 255, 255)
+  gsi.set_selected(gsi < 0, 0)
+
+  gsn = Image.fromarray(numpy.uint8(gsi.as_numpy_array()))
+
+  Image.new('L', gsn).save(filename)
+
 def save_image(filename, r, g, b):
   '''Save file to filename with channels r, g, b.'''
 
