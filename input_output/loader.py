@@ -6,16 +6,36 @@ phil_scope = iotbx.phil.parse("""
   raw {
     depth = 16
       .type = int
-    demosaic = *aahd ahd
+    demosaic = aahd *ahd
       .type = choice
-    space = *srgb wide adobe
+    space = srgb wide *adobe
       .type = choice
     channel = *r *g *b
       .type = choice(multi=True)
+    convert_xyz = false
+      .type = bool
   }
 """, process_includes=False)
 
 defaults = phil_scope.extract()
+
+def adobe_rgb_to_xyz(r, g, b):
+  '''Convert adobe encoded RGB values to x, y, z linearised values.'''
+  from scitbx.array_family import flex
+
+  scale = 1.0 / 255.0
+  gamma = 563.0 / 256.0
+
+  rl = flex.pow(r * scale, gamma)
+  gl = flex.pow(g * scale, gamma)
+  bl = flex.pow(b * scale, gamma)
+
+  # matrix from https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf
+  x = 0.57557 * rl + 0.18556 * gl + 0.18823 * bl
+  y = 0.29734 * rl + 0.62736 * gl + 0.07529 * bl
+  z = 0.02703 * rl + 0.07069 * gl + 0.99134 * bl
+
+  return x, y, z
 
 def load_image_gs(image):
   '''Load image as RGB channels, convert to float, sum then return flex
@@ -73,4 +93,7 @@ def load_raw_image(image, params=None):
   g = flex.double(numpy.double(rgb[:,:,1]))
   b = flex.double(numpy.double(rgb[:,:,2]))
 
+  if params.convert_xyz:
+    assert params.space == 'adobe'
+    return adobe_rgb_to_xyz(r, g, b)
   return r, g, b
