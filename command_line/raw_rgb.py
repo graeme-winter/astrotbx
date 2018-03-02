@@ -21,6 +21,11 @@ def histogram(params, image):
   from matplotlib import pyplot
   from astrotbx.input_output.loader import load_raw_image
   r, g, b = load_raw_image(image, params=params.raw)
+
+  r *= params.scale
+  g *= params.scale
+  b *= params.scale
+
   dmax = max(flex.max(r), flex.max(g), flex.max(b))
 
   if params.colour == 'r':
@@ -43,9 +48,6 @@ def histogram(params, image):
 
   if params.save:
     from astrotbx.input_output.saver import save_image
-    r *= params.scale
-    g *= params.scale
-    b *= params.scale
     save_image(params.save, r, g, b)
 
 def run(args):
