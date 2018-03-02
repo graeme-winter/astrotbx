@@ -9,6 +9,8 @@ phil_scope = iotbx.phil.parse("""
     .type = float
   output = stacked.png
     .type = path
+  greyscale = false
+    .type = bool
   include scope astrotbx.input_output.loader.phil_scope
 """, process_includes=True)
 
@@ -35,7 +37,7 @@ def run(args):
   sum_image_b = None
 
   from astrotbx.input_output.loader import load_image, load_raw_image
-  from astrotbx.input_output.saver import save_image
+  from astrotbx.input_output.saver import save_image, save_image_gs
   from astrotbx.algorithms.image_align import rotate_translate_array
 
   raws = ['arw']
@@ -74,7 +76,10 @@ def run(args):
   sum_image_g *= params.scale / len(args)
   sum_image_b *= params.scale / len(args)
 
-  save_image(params.output, sum_image_r, sum_image_g, sum_image_b)
+  if params.greyscale:
+    save_image_gs(params.output, sum_image_r+sum_image_g+sum_image_b)
+  else:
+    save_image(params.output, sum_image_r, sum_image_g, sum_image_b)
 
 if __name__ == '__main__':
   import sys
