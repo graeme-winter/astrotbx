@@ -4,7 +4,7 @@ import iotbx.phil
 
 phil_scope = iotbx.phil.parse("""
   raw {
-    bit_depth = 16
+    depth = 16
       .type = int
     demosaic = *aahd ahd
       .type = choice
@@ -40,6 +40,10 @@ def load_image(image):
 
   return flex.double(r), flex.double(g), flex.double(b)
 
+def load_raw_image_gs(image, params=None):
+  r, g, b = load_raw_image(image, params)
+  return r + g + b
+
 def load_raw_image(image, params=None):
   '''Read as RGB channels, return double array of each i.e. tuple r, g, b.'''
   import numpy
@@ -56,7 +60,7 @@ def load_raw_image(image, params=None):
               'aahd':rawpy.DemosaicAlgorithm.AAHD}
 
   raw = rawpy.imread(image)
-  rgb = raw.postprocess(output_bps=16, no_auto_scale=True,
+  rgb = raw.postprocess(output_bps=params.depth, no_auto_scale=True,
                         demosaic_algorithm=demosaic[params.demosaic],
                         output_color=space[params.space],
                         no_auto_bright=True, use_camera_wb=False)

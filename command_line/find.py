@@ -11,7 +11,8 @@ phil_scope = iotbx.phil.parse("""
     .type = int
   output = stars.pickle
     .type = path
-""", process_includes=False)
+  include scope astrotbx.input_output.loader.phil_scope
+""", process_includes=True)
 
 def run(args):
   from dials.util.options import OptionParser
@@ -27,14 +28,20 @@ def run(args):
   params, options, args = parser.parse_args(show_diff_phil=True,
                                             return_unhandled=True)
 
-  from astrotbx.input_output.loader import load_image_gs
+  from astrotbx.input_output.loader import load_image_gs, load_raw_image_gs
   from astrotbx.algorithms.star_find import find
   from dials.array_family import flex
 
   all = None
 
+  raws = 'arw'
+
   for j, arg in enumerate(args):
-    image = load_image_gs(arg)
+    exten = arg.split('.')[-1].lower()
+    if exten in raws:
+      image = load_raw_image_gs(arg, params.raw)
+    else:
+      image = load_image_gs(arg)
     stars = find(image, params)
     print("On %s found %d stars" % (arg, stars.size()))
     if all is None:

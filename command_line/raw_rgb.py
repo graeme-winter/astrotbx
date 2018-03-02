@@ -20,7 +20,7 @@ def histogram(params, image):
   from dials.array_family import flex
   from matplotlib import pyplot
   from astrotbx.input_output.loader import load_raw_image
-  r, g, b = load_raw_image(image)
+  r, g, b = load_raw_image(image, params=params.raw)
   dmax = max(flex.max(r), flex.max(g), flex.max(b))
 
   if params.colour == 'r':
