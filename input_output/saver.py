@@ -13,9 +13,7 @@ def save_image_gs(filename, gs):
   gsi.set_selected(gsi > 255, 255)
   gsi.set_selected(gsi < 0, 0)
 
-  gsn = Image.fromarray(numpy.uint8(gsi.as_numpy_array()))
-
-  Image.new('L', gsn).save(filename)
+  Image.fromarray(numpy.uint8(gsi.as_numpy_array())).save(filename)
 
 def save_image(filename, r, g, b):
   '''Save file to filename with channels r, g, b.'''
