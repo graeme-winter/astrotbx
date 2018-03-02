@@ -13,36 +13,14 @@ phil_scope = iotbx.phil.parse("""
     .type = path
   scale = 1
     .type = float
-""", process_includes=False)
-
-def loader(image):
-  import numpy
-  import rawpy
-  from scitbx.array_family import flex
-
-  raw = rawpy.imread(image)
-  rgb = raw.postprocess(output_bps=16, no_auto_scale=True,
-                        demosaic_algorithm=rawpy.DemosaicAlgorithm.AAHD,
-                        output_color=rawpy.ColorSpace.Wide,
-                        no_auto_bright=True, use_camera_wb=True)
-  r = flex.double(numpy.double(rgb[:,:,0]))
-  g = flex.double(numpy.double(rgb[:,:,1]))
-  b = flex.double(numpy.double(rgb[:,:,2]))
-
-  # try to work out the true ADU scale
-
-  min_r = flex.min(r.as_1d().select(r.as_1d() > 0))
-  min_g = flex.min(g.as_1d().select(g.as_1d() > 0))
-  min_b = flex.min(b.as_1d().select(b.as_1d() > 0))
-
-  adu = min(min_r, min_g, min_b)
-
-  return r / adu, g / adu, b / adu
+  include scope astrotbx.input_output.loader.phil_scope
+""", process_includes=True)
 
 def histogram(params, image):
   from dials.array_family import flex
   from matplotlib import pyplot
-  r, g, b = loader(image)
+  from astrotbx.input_output.loader import load_raw_image
+  r, g, b = load_raw_image(image)
   dmax = max(flex.max(r), flex.max(g), flex.max(b))
 
   if params.colour == 'r':
