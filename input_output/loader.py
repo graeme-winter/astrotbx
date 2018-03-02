@@ -10,6 +10,8 @@ phil_scope = iotbx.phil.parse("""
       .type = choice
     space = *srgb wide adobe
       .type = choice
+    channel = *r *g *b
+      .type = choice(multi=True)
   }
 """, process_includes=False)
 
@@ -42,7 +44,10 @@ def load_image(image):
 
 def load_raw_image_gs(image, params=None):
   r, g, b = load_raw_image(image, params)
-  return r + g + b
+  _r = int('r' in params.channel)
+  _g = int('g' in params.channel)
+  _b = int('b' in params.channel)
+  return _r * r + _g * g + _b * b
 
 def load_raw_image(image, params=None):
   '''Read as RGB channels, return double array of each i.e. tuple r, g, b.'''
