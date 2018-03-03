@@ -36,6 +36,7 @@ def run(args):
   from scitbx.array_family import flex
 
   total = None
+  t_sqr = None
 
   # first build up mean dark image
 
@@ -43,10 +44,13 @@ def run(args):
     image = load_dark_image(arg)
     if total is None:
       total = image
+      t_sqr = image ** 2
     else:
       total += image
+      t_sqr += image ** 2
 
   dark = total * (1.0 / len(args))
+  dvar = flex.sqrt(t_sqr * (1.0 / len(args)) - dark)
 
   # then subtract it from each other image and look at residual
 
@@ -78,6 +82,8 @@ def run(args):
   # diagnostics
   print('Mean / min / max dark value: %.1f / %.1f / %.1f' %
         (flex.mean(dark), flex.min(dark), flex.max(dark)))
+  print('Mean / min / max dark sigma: %.1f / %.1f / %.1f' %
+        (flex.mean(dvar), flex.min(dvar), flex.max(dvar)))
 
   if params.output:
     import cPickle as pickle
