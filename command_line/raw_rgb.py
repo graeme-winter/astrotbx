@@ -7,6 +7,12 @@ phil_scope = iotbx.phil.parse("""
     .type = path
   log_n = false
     .type = bool
+  min = 0
+    .type = float
+  max = 255
+    .type = float
+  bins = 255
+    .type = int
   colour = *r g b
     .type = choice
   save = None
@@ -39,8 +45,8 @@ def histogram(params, image):
   print("Mean / max g: %6.2f / %6.2f" % (flex.mean(g), flex.max(g)))
   print("Mean / max b: %6.2f / %6.2f" % (flex.mean(b), flex.max(b)))
 
-  pixels = flex.histogram(data.as_1d(), data_min=0, data_max=dmax,
-                          n_slots=int(dmax))
+  pixels = flex.histogram(data.as_1d(), data_min=params.min,
+                          data_max=params.max, n_slots=params.bins)
   v = pixels.slot_centers().as_double()
   n = pixels.slots().as_double()
   pyplot.bar(v, n, log=params.log_n)
