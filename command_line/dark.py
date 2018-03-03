@@ -15,6 +15,8 @@ phil_scope = iotbx.phil.parse("""
     .type = bool
   output = None
     .type = path
+  png = None
+    .type = path
   include scope astrotbx.input_output.loader.phil_scope
 """, process_includes=True)
 
@@ -90,6 +92,10 @@ def run(args):
     with open(params.output, 'w') as fout:
       pickle.dump(dark.iround().as_numpy_array(), fout,
                   protocol=pickle.HIGHEST_PROTOCOL)
+
+  if params.png:
+    from astrotbx.input_output.saver import save_image_gs
+    save_image_gs(params.png, dark)
 
 if __name__ == '__main__':
   import sys

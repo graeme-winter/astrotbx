@@ -79,6 +79,7 @@ def load_dark_image(image):
   import rawpy
   import numpy
   with rawpy.imread(image) as raw:
+    black = raw.black_level_per_channel
     return flex.double(numpy.double(raw.raw_image))
 
 def load_raw_image(image, params=None):
