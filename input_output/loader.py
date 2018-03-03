@@ -99,7 +99,7 @@ def load_dark_image(image, params=None):
       data = flex.double(numpy.double(raw.raw_image - dark + black[0]))
     else:
       data = flex.double(numpy.double(raw.raw_image))
-    return data - black[0]
+    return data
 
 def load_raw_image(image, params=None):
   '''Read as RGB channels, return double array of each i.e. tuple r, g, b.'''
@@ -110,6 +110,13 @@ def load_raw_image(image, params=None):
   if params is None:
     params = defaults.raw
 
+  if params.dark:
+    global __dark
+    if __dark is None:
+      import cPickle as pickle
+      __dark = pickle.load(open(params.dark))
+    dark = __dark
+
   space = {'wide':rawpy.ColorSpace.Wide,
            'srgb':rawpy.ColorSpace.sRGB,
            'adobe':rawpy.ColorSpace.Adobe,
@@ -119,6 +126,15 @@ def load_raw_image(image, params=None):
               'linear':rawpy.DemosaicAlgorithm.LINEAR}
 
   raw = rawpy.imread(image)
+
+  # subtract dark image if provided - will assume dark image *includes*
+  # black offset => add this back (all performed in-place)
+
+  if params.dark:
+    b = raw.black_level_per_channel
+    assert b[0] == b[1] == b[2] == b[3]
+    raw.raw_image[:,:] = numpy.uint16(numpy.int32(raw.raw_image) - dark + b[0])
+
   # raw.raw_pattern - pattern of R, G, B, G pixels / map to white
   # raw.camera_whitebalance - scale factors for pixels (filter transmissions?)
   # colours a property too, somewhere - color_desc
