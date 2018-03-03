@@ -14,6 +14,8 @@ phil_scope = iotbx.phil.parse("""
       .type = choice(multi=True)
     convert_xyz = false
       .type = bool
+    dark = None
+      .type = path
   }
 """, process_includes=False)
 
@@ -69,7 +71,9 @@ def load_raw_image_gs(image, params=None):
   _b = int('b' in params.channel)
   return _r * r + _g * g + _b * b
 
-def load_dark_image(image):
+__dark = None
+
+def load_dark_image(image, params=None):
   '''Return the literally raw CCD counts -
  - no demosaic
  - no colour scaling
@@ -78,9 +82,24 @@ def load_dark_image(image):
   from scitbx.array_family import flex
   import rawpy
   import numpy
+
+  if params is None:
+    params = defaults.raw
+
+  if params.dark:
+    global __dark
+    if __dark is None:
+      import cPickle as pickle
+      __dark = pickle.load(open(params.dark))
+    dark = __dark
+
   with rawpy.imread(image) as raw:
     black = raw.black_level_per_channel
-    return flex.double(numpy.double(raw.raw_image))
+    if params.dark:
+      data = flex.double(numpy.double(raw.raw_image - dark + black[0]))
+    else:
+      data = flex.double(numpy.double(raw.raw_image))
+    return data - black[0]
 
 def load_raw_image(image, params=None):
   '''Read as RGB channels, return double array of each i.e. tuple r, g, b.'''

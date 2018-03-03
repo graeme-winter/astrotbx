@@ -43,7 +43,7 @@ def run(args):
   # first build up mean dark image
 
   for arg in args:
-    image = load_dark_image(arg)
+    image = load_dark_image(arg, params.raw)
     if total is None:
       total = image
       t_sqr = image ** 2
