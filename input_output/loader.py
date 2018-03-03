@@ -69,6 +69,18 @@ def load_raw_image_gs(image, params=None):
   _b = int('b' in params.channel)
   return _r * r + _g * g + _b * b
 
+def load_dark_image(image):
+  '''Return the literally raw CCD counts -
+ - no demosaic
+ - no colour scaling
+ - single channel'''
+
+  from scitbx.array_family import flex
+  import rawpy
+  import numpy
+  with rawpy.imread(image) as raw:
+    return flex.double(numpy.double(raw.raw_image))
+
 def load_raw_image(image, params=None):
   '''Read as RGB channels, return double array of each i.e. tuple r, g, b.'''
   import numpy
@@ -89,7 +101,7 @@ def load_raw_image(image, params=None):
   raw = rawpy.imread(image)
   # raw.raw_pattern - pattern of R, G, B, G pixels / map to white
   # raw.camera_whitebalance - scale factors for pixels (filter transmissions?)
-  # colours a property too, somewhere
+  # colours a property too, somewhere - color_desc
   rgb = raw.postprocess(output_bps=params.depth, use_camera_wb=True,
                         no_auto_scale=False, no_auto_bright=True,
                         demosaic_algorithm=demosaic[params.demosaic],
