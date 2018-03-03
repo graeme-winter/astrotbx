@@ -6,7 +6,7 @@ phil_scope = iotbx.phil.parse("""
   raw {
     depth = 16
       .type = int
-    demosaic = aahd *ahd
+    demosaic = aahd *ahd linear
       .type = choice
     space = srgb wide adobe *raw
       .type = choice
@@ -83,7 +83,8 @@ def load_raw_image(image, params=None):
            'adobe':rawpy.ColorSpace.Adobe,
            'raw':rawpy.ColorSpace.raw}
   demosaic = {'ahd':rawpy.DemosaicAlgorithm.AHD,
-              'aahd':rawpy.DemosaicAlgorithm.AAHD}
+              'aahd':rawpy.DemosaicAlgorithm.AAHD,
+              'linear':rawpy.DemosaicAlgorithm.LINEAR}
 
   raw = rawpy.imread(image)
   # raw.raw_pattern - pattern of R, G, B, G pixels / map to white
