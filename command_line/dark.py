@@ -9,11 +9,11 @@ phil_scope = iotbx.phil.parse("""
     .type = float
   bins = 64
     .type = int
-  histogram = diff_histogram.png
+  histogram = None
     .type = path
   log = false
     .type = bool
-  output = dark.pickle
+  output = None
     .type = path
   include scope astrotbx.input_output.loader.phil_scope
 """, process_includes=True)
@@ -53,7 +53,6 @@ def run(args):
   hist = None
 
   for j, arg in enumerate(args):
-    print('Reading %s (%3d/%3d)' % (arg, j+1, len(args)))
     image = load_dark_image(arg)
     diff = (image - dark).as_1d()
     if hist is None:
@@ -70,10 +69,21 @@ def run(args):
 
   from matplotlib import pyplot
 
-  v = hist.slot_centers().as_double()
-  n = hist.slots().as_double()
-  pyplot.bar(v, n, log=params.log)
-  pyplot.savefig(params.histogram)
+  if params.histogram:
+    v = hist.slot_centers().as_double()
+    n = hist.slots().as_double()
+    pyplot.bar(v, n, log=params.log)
+    pyplot.savefig(params.histogram)
+
+  # diagnostics
+  print('Mean / min / max dark value: %.1f / %.1f / %.1f' %
+        (flex.mean(dark), flex.min(dark), flex.max(dark)))
+
+  if params.output:
+    import cPickle as pickle
+    with open(params.output, 'w') as fout:
+      pickle.dump(dark.iround().as_numpy_array(), fout,
+                  protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
   import sys
