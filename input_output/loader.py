@@ -8,7 +8,7 @@ phil_scope = iotbx.phil.parse("""
       .type = int
     demosaic = aahd *ahd
       .type = choice
-    space = srgb wide *adobe
+    space = srgb wide adobe *raw
       .type = choice
     channel = *r *g *b
       .type = choice(multi=True)
@@ -80,15 +80,19 @@ def load_raw_image(image, params=None):
 
   space = {'wide':rawpy.ColorSpace.Wide,
            'srgb':rawpy.ColorSpace.sRGB,
-           'adobe':rawpy.ColorSpace.Adobe}
+           'adobe':rawpy.ColorSpace.Adobe,
+           'raw':rawpy.ColorSpace.raw}
   demosaic = {'ahd':rawpy.DemosaicAlgorithm.AHD,
               'aahd':rawpy.DemosaicAlgorithm.AAHD}
 
   raw = rawpy.imread(image)
-  rgb = raw.postprocess(output_bps=params.depth, no_auto_scale=True,
+  # raw.raw_pattern - pattern of R, G, B, G pixels / map to white
+  # raw.camera_whitebalance - scale factors for pixels (filter transmissions?)
+  # colours a property too, somewhere
+  rgb = raw.postprocess(output_bps=params.depth, use_camera_wb=True,
+                        no_auto_scale=False, no_auto_bright=True,
                         demosaic_algorithm=demosaic[params.demosaic],
-                        output_color=space[params.space],
-                        no_auto_bright=True, use_camera_wb=False)
+                        output_color=space[params.space])
   r = flex.double(numpy.double(rgb[:,:,0]))
   g = flex.double(numpy.double(rgb[:,:,1]))
   b = flex.double(numpy.double(rgb[:,:,2]))
