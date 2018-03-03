@@ -16,6 +16,8 @@ def info(images):
       print("Size info:")
       for p in sizes:
         print("   %12s -> %s" % (p, str(sizes[p])))
+      print("Array shape:   %d %d" % raw.raw_image.shape)
+      print("Visible:       %d %d" % raw.raw_image_visible.shape)
 
 if __name__ == '__main__':
   import sys
