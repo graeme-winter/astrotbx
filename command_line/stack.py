@@ -72,6 +72,11 @@ def run(args):
     else:
       sum_image_b += _b
 
+  # first scale to get the mean image
+  sum_image_r *= 1.0 / len(args)
+  sum_image_g *= 1.0 / len(args)
+  sum_image_b *= 1.0 / len(args)
+
   # save the data image
   if params.data:
     import cPickle as pickle
@@ -79,11 +84,10 @@ def run(args):
       pickle.dump((sum_image_r, sum_image_g, sum_image_b), fout,
                   protocol=pickle.HIGHEST_PROTOCOL)
 
-  # output the image
-
-  sum_image_r *= params.scale / len(args)
-  sum_image_g *= params.scale / len(args)
-  sum_image_b *= params.scale / len(args)
+  # output the image scaled however requested (can revisit in astrotbx.develop)
+  sum_image_r *= params.scale
+  sum_image_g *= params.scale
+  sum_image_b *= params.scale
 
   if params.greyscale:
     save_image_gs(params.output, sum_image_r+sum_image_g+sum_image_b)
