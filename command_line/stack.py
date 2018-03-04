@@ -9,6 +9,8 @@ phil_scope = iotbx.phil.parse("""
     .type = float
   output = stacked.png
     .type = path
+  data = stacked.pickle
+    .type = path
   greyscale = false
     .type = bool
   include scope astrotbx.input_output.loader.phil_scope
@@ -69,6 +71,13 @@ def run(args):
       sum_image_b = _b
     else:
       sum_image_b += _b
+
+  # save the data image
+  if params.data:
+    import cPickle as pickle
+    with open(params.data, 'w') as fout:
+      pickle.dump((sum_image_r, sum_image_g, sum_image_b), fout,
+                  protocol=pickle.HIGHEST_PROTOCOL)
 
   # output the image
 
