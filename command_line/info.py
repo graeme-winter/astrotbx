@@ -19,6 +19,11 @@ def info(images):
       print("Array shape:   %d %d" % raw.raw_image.shape)
       print("Visible:       %d %d" % raw.raw_image_visible.shape)
 
+      # close to overloaded i.e. within black level of 2^12
+      thresh = 2**12 - raw.black_level_per_channel[0]
+      print("Max raw:       %d" % (numpy.amax(raw.raw_image)))
+      print("N > %4d:      %d" % (thresh, (raw.raw_image > thresh).sum()))
+
 if __name__ == '__main__':
   import sys
   info(sys.argv[1:])
