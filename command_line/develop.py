@@ -5,7 +5,7 @@ import iotbx.phil
 phil_scope = iotbx.phil.parse("""
   scale = 1.0
     .type = float
-  output = stacked.png
+  output = developed.png
     .type = path
   data = stacked.pickle
     .type = path
@@ -29,7 +29,7 @@ def run(args):
   import cPickle as pickle
   from dials.array_family import flex
 
-  with fin as open(params.data):
+  with open(params.data) as fin:
     sum_image_r, sum_image_g, sum_image_b = pickle.load(fin)
 
   sum_image_r *= params.scale
