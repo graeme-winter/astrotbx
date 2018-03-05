@@ -13,12 +13,65 @@ phil_scope = iotbx.phil.parse("""
     .type = path
   log = false
     .type = bool
+  quartile = false
+    .type = bool
   output = None
     .type = path
   png = None
     .type = path
   include scope astrotbx.input_output.loader.phil_scope
 """, process_includes=True)
+
+def basic_process_dark(args, params):
+  from astrotbx.input_output.loader import load_dark_image
+  from scitbx.array_family import flex
+
+  total = None
+
+  # first build up mean dark image
+
+  for arg in args:
+    image = load_dark_image(arg, params.raw)
+    if total is None:
+      total = image
+    else:
+      total += image
+
+  dark = total * (1.0 / len(args))
+
+  return dark
+
+def quartile_process_dark(args, params):
+  from astrotbx.input_output.loader import load_dark_image
+  from scitbx.array_family import flex
+  import numpy
+
+  stack = None
+
+  for j, arg in enumerate(args):
+    image = load_dark_image(arg, params.raw, as_numpy=True)
+    if stack is None:
+      stack = numpy.zeros((len(args), image.shape[0], image.shape[1]),
+                          dtype=numpy.uint16)
+    stack[j,:,:] = image
+
+  # now sort on pixel values at each pixel on each image - warning likely
+  # to be very expensive
+
+  sorted = numpy.sort(stack, axis=0)
+
+  # grab central quartile
+  q1 = len(args) // 4
+  q3 = len(args) - q1
+
+  # now stack / mean q1 - q3
+  total = flex.double(numpy.double(sorted[q1,:,:]))
+  for q in range(q1+1, q3):
+    total += flex.double(numpy.double(sorted[q,:,:]))
+
+  dark = total * (1.0 / (q3 - q1))
+
+  return dark
 
 def run(args):
   from dials.util.options import OptionParser
@@ -34,27 +87,14 @@ def run(args):
   params, options, args = parser.parse_args(show_diff_phil=True,
                                             return_unhandled=True)
 
-  from astrotbx.input_output.loader import load_dark_image
-  from scitbx.array_family import flex
-
-  total = None
-  t_sqr = None
-
-  # first build up mean dark image
-
-  for arg in args:
-    image = load_dark_image(arg, params.raw)
-    if total is None:
-      total = image
-      t_sqr = image ** 2
-    else:
-      total += image
-      t_sqr += image ** 2
-
-  dark = total * (1.0 / len(args))
-  dvar = flex.sqrt(t_sqr * (1.0 / len(args)) - dark)
+  if params.quartile:
+    dark = quartile_process_dark(args, params)
+  else:
+    dark = basic_process_dark(args, params)
 
   # then subtract it from each other image and look at residual
+  from astrotbx.input_output.loader import load_dark_image
+  from scitbx.array_family import flex
 
   hist = None
 
@@ -84,8 +124,6 @@ def run(args):
   # diagnostics
   print('Mean / min / max dark value: %.1f / %.1f / %.1f' %
         (flex.mean(dark), flex.min(dark), flex.max(dark)))
-  print('Mean / min / max dark sigma: %.1f / %.1f / %.1f' %
-        (flex.mean(dvar), flex.min(dvar), flex.max(dvar)))
 
   if params.output:
     import cPickle as pickle

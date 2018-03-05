@@ -73,7 +73,7 @@ def load_raw_image_gs(image, params=None):
 
 __dark = None
 
-def load_dark_image(image, params=None):
+def load_dark_image(image, params=None, as_numpy=False):
   '''Return the literally raw CCD counts -
  - no demosaic
  - no colour scaling
@@ -95,8 +95,15 @@ def load_dark_image(image, params=None):
 
   with rawpy.imread(image) as raw:
     black = raw.black_level_per_channel
+
+    if as_numpy and params.dark:
+      return raw.raw_image - dark + black[0]
+    elif as_numpy:
+      return numpy.copy(raw.raw_image)
+
     if params.dark:
-      data = flex.double(numpy.double(raw.raw_image - dark + black[0]))
+      ndata = raw.raw_image - dark + black[0]
+      data = flex.double(numpy.double(ndata))
     else:
       data = flex.double(numpy.double(raw.raw_image))
     return data
