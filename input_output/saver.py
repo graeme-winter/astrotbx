@@ -33,7 +33,7 @@ def save_image(filename, r, g, b, params=None):
   from PIL import Image
 
   if params is None:
-    params = defaults
+    params = defaults.png
 
   ri = r.iround()
   gi = g.iround()
