@@ -1,5 +1,16 @@
 from __future__ import absolute_import, division, print_function
 
+import iotbx.phil
+
+phil_scope = iotbx.phil.parse("""
+  png {
+    negative = false
+      .type = bool
+  }
+""", process_includes=False)
+
+defaults = phil_scope.extract()
+
 def save_image_gs(filename, gs):
   '''Save greyscale image.'''
 
@@ -15,11 +26,14 @@ def save_image_gs(filename, gs):
 
   Image.fromarray(numpy.uint8(gsi.as_numpy_array())).save(filename)
 
-def save_image(filename, r, g, b):
+def save_image(filename, r, g, b, params=None):
   '''Save file to filename with channels r, g, b.'''
 
   import numpy
   from PIL import Image
+
+  if params is None:
+    params = defaults
 
   ri = r.iround()
   gi = g.iround()
@@ -34,6 +48,11 @@ def save_image(filename, r, g, b):
   ri.set_selected(ri < 0, 0)
   gi.set_selected(gi < 0, 0)
   bi.set_selected(bi < 0, 0)
+
+  if params.negative:
+    ri = ri * -1 + 255
+    gi = gi * -1 + 255
+    bi = bi * -1 + 255
 
   rn = Image.fromarray(numpy.uint8(ri.as_numpy_array()))
   gn = Image.fromarray(numpy.uint8(gi.as_numpy_array()))

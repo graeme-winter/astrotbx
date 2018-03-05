@@ -9,7 +9,8 @@ phil_scope = iotbx.phil.parse("""
     .type = path
   data = stacked.pickle
     .type = path
-""", process_includes=False)
+  include scope astrotbx.input_output.saver.phil_scope
+""", process_includes=True)
 
 def run(args):
   from dials.util.options import OptionParser
@@ -39,7 +40,7 @@ def run(args):
   # output the image
 
   from astrotbx.input_output.saver import save_image
-  save_image(params.output, sum_image_r, sum_image_g, sum_image_b)
+  save_image(params.output, sum_image_r, sum_image_g, sum_image_b, params.png)
 
 if __name__ == '__main__':
   import sys
