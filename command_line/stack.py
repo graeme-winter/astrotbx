@@ -13,6 +13,8 @@ phil_scope = iotbx.phil.parse("""
     .type = path
   greyscale = false
     .type = bool
+  dlimit = 0
+    .type = float
   include scope astrotbx.input_output.loader.phil_scope
 """, process_includes=True)
 
@@ -45,6 +47,10 @@ def run(args):
   raws = ['arw']
 
   for image, alignment in zip(args, Rtds):
+    if params.dlimit > 0:
+      if alignment['d'] > params.dlimit:
+        print("Ignoring %s" % image)
+        continue
     print("Loading %s" % image)
     R, t = alignment['R'], alignment['t']
     exten = image.split('.')[-1].lower()
