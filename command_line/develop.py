@@ -9,6 +9,8 @@ phil_scope = iotbx.phil.parse("""
     .type = path
   data = stacked.pickle
     .type = path
+  data_min = 0.0
+    .type = float
   include scope astrotbx.input_output.saver.phil_scope
 """, process_includes=True)
 
@@ -32,6 +34,11 @@ def run(args):
 
   with open(params.data) as fin:
     sum_image_r, sum_image_g, sum_image_b = pickle.load(fin)
+
+  if params.data_min:
+    sum_image_r -= params.data_min
+    sum_image_g -= params.data_min
+    sum_image_b -= params.data_min
 
   sum_image_r *= params.scale
   sum_image_g *= params.scale
