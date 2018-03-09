@@ -46,12 +46,15 @@ def run(args):
 
   raws = ['arw']
 
+  kept = 0
+
   for image, alignment in zip(args, Rtds):
     if params.dlimit > 0:
       if alignment['d'] > params.dlimit:
         print("Ignoring %s" % image)
         continue
     print("Loading %s" % image)
+    kept += 1
     R, t = alignment['R'], alignment['t']
     exten = image.split('.')[-1].lower()
     if exten in raws:
@@ -79,9 +82,9 @@ def run(args):
       sum_image_b += _b
 
   # first scale to get the mean image
-  sum_image_r *= 1.0 / len(args)
-  sum_image_g *= 1.0 / len(args)
-  sum_image_b *= 1.0 / len(args)
+  sum_image_r *= 1.0 / kept
+  sum_image_g *= 1.0 / kept
+  sum_image_b *= 1.0 / kept
 
   # save the data image
   if params.data:
