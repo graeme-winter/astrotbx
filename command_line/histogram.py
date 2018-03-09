@@ -6,7 +6,42 @@ phil_scope = iotbx.phil.parse("""
   output = histogram.dat
     .type = path
   include scope astrotbx.input_output.loader.phil_scope
+  min = none
+    .type = float
+  max = none
+    .type = float
+  bins = 1000
+    .type = int
 """, process_includes=True)
+
+def pickle_histogram(params, data):
+  from dials.array_family import flex
+
+  import cPickle as pickle
+  from dials.array_family import flex
+
+  with open(data) as fin:
+    r, g, b = pickle.load(fin)
+
+  if params.min is None:
+    _min = min(flex.min(r), flex.min(g), flex.min(b))
+  else:
+    _min = params.min
+  if params.max is None:
+    _max = max(flex.max(r), flex.max(g), flex.max(b))
+  else:
+    _max = params.max
+
+  tr = flex.histogram(r.as_1d(), data_min=_min, data_max=_max,
+                      n_slots=params.bins)
+  tg = flex.histogram(g.as_1d(), data_min=_min, data_max=_max,
+                      n_slots=params.bins)
+  tb = flex.histogram(b.as_1d(), data_min=_min, data_max=_max,
+                      n_slots=params.bins)
+
+  with open(params.output, 'w') as f:
+    for cn in zip(tr.slot_centers(), tr.slots(), tg.slots(), tb.slots()):
+      f.write('%.2f %f %f %f\n' % cn)
 
 def histogram(params, images):
   from astrotbx.input_output.loader import load_raw_image
@@ -56,6 +91,10 @@ def run(args):
 
   params, options, args = parser.parse_args(show_diff_phil=True,
                                             return_unhandled=True)
+
+  for a in args:
+    if a.endswith('pickle'):
+      return pickle_histogram(params, a)
 
   histogram(params, args)
 
