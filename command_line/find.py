@@ -29,6 +29,7 @@ def run(args):
                                             return_unhandled=True)
 
   from astrotbx.input_output.loader import load_image_gs, load_raw_image_gs
+  from astrotbx.input_output.info import info
   from astrotbx.algorithms.star_find import find
   from dials.array_family import flex
 
@@ -36,17 +37,24 @@ def run(args):
 
   raws = ['arw']
 
+  t0 = 0.0
+
   for j, arg in enumerate(args):
     exten = arg.split('.')[-1].lower()
     if exten in raws:
       image = load_raw_image_gs(arg, params.raw)
     else:
       image = load_image_gs(arg)
+    timestamp = info(arg)['timestamp']
     stars = find(image, params)
     print("On %s found %d stars" % (arg, stars.size()))
     if all is None:
+      stars['timestamp'] = flex.double(stars.size(), 0.0)
+      t0 = timestamp
       all = stars
     else:
+      t = timestamp - t0
+      stars['timestamp'] = flex.double(stars.size(), t)
       x, y, z = stars['xyzobs.px.value'].parts()
       z += j
       stars['xyzobs.px.value'] = flex.vec3_double(x, y, z)

@@ -53,7 +53,7 @@ def run(args):
   zs.sort()
 
   Rtds = []
-  Rtds.append({'R':(1,0,0,1), 't':(0,0), 'd':0, 'n':0})
+  Rtds.append({'R':(1,0,0,1), 't':(0,0), 'd':0, 'n':0, 'dt':0})
 
   from scitbx import matrix
   import math
@@ -65,6 +65,8 @@ def run(args):
     _z = zs[j+1]
     datum = stars.select(z == _r)
     move = stars.select(z == _z)
+
+    dt = move['timestamp'][0]
 
     # get the moves for this step
     R, t, d, n = matcher(datum, move, params)
@@ -86,10 +88,10 @@ def run(args):
 
     # the re-compute the full Rt from datum to this time point
 
-    Rtds.append({'R':R1.elems, 't':t1, 'd':d1, 'n':n1})
+    Rtds.append({'R':R1.elems, 't':t1, 'd':d1, 'n':n1, 'dt':dt})
 
   for j, Rtd in enumerate(Rtds):
-    print('%3d %.4f %3d' % (j, Rtd['d'], Rtd['n']))
+    print('%3d %.4f %3d %4d' % (j, Rtd['d'], Rtd['n'], Rtd['dt']))
 
   import json
   json.dump(Rtds, open(params.output, 'w'))

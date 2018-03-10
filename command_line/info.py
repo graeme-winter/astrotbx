@@ -5,8 +5,20 @@ def info(images):
   import rawpy
   import numpy
 
+  import exifread
+  import datetime
+  import calendar
+
+  ts = 'EXIF DateTimeOriginal'
+
+
   for image in images:
     with rawpy.imread(image) as raw:
+      with open(image) as f:
+        tags = exifread.process_file(f, details=False, stop_tag=ts)
+        dt = datetime.datetime.strptime(str(tags[ts]), '%Y:%m:%d %H:%M:%S')
+
+      print("Time stamp:    ", calendar.timegm(dt.timetuple()))
       print("Pixel channels:", raw.color_desc)
       print("Black values:  ", raw.black_level_per_channel)
       print("Pattern:       ", raw.raw_pattern.tolist())
