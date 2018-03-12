@@ -3,7 +3,9 @@ from __future__ import absolute_import, division, print_function
 import iotbx.phil
 
 phil_scope = iotbx.phil.parse("""
-  close = 10.0
+  far = 10.0
+    .type = float
+  close = 0.0
     .type = float
   output = rotations.json
     .type = path
