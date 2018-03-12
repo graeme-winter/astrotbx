@@ -9,7 +9,7 @@ phil_scope = iotbx.phil.parse("""
     .type = float
   slots = 1000
     .type = int
-  output = gain.png
+  output = gain.dat
     .type = path
   include scope astrotbx.input_output.loader.phil_scope
 """, process_includes=True)
@@ -30,15 +30,7 @@ def gain(image, params):
   disp = filter.index_of_dispersion_filter(image, (3, 3)).index_of_dispersion()
   hist = flex.histogram(disp.as_1d(), data_min=params.min, data_max=params.max,
                         n_slots=params.slots)
-
-  v = hist.slot_centers().as_double()
-  n = hist.slots().as_double()
-  fix, axes = pyplot.subplots()
-  pyplot.bar(v, n)
-  axes.set_xlabel('variance / mean')
-  pyplot.savefig(params.output)
-
-  return
+  return hist
 
 def run(args):
   from dials.util.options import OptionParser
@@ -55,7 +47,21 @@ def run(args):
   params, options, args = parser.parse_args(show_diff_phil=True,
                                             return_unhandled=True)
 
-  gain(args[0], params)
+  hist = None
+  for arg in args:
+    print(arg)
+    tmp = gain(arg, params)
+    if hist is None:
+      hist = tmp
+    else:
+      hist.update(tmp)
+
+  with open(params.output, 'w') as f:
+    for v, n in zip(hist.slot_centers(), hist.slots()):
+      f.write('%f %d\n' % (v, n))
+
+  return
+
 
 if __name__ == '__main__':
   import sys
