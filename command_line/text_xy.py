@@ -29,7 +29,10 @@ def run(args):
   import cPickle as pickle
   import json
 
-  Rtds = json.load(open(params.alignments))
+  if params.alignments:
+    Rtds = json.load(open(params.alignments))
+  else:
+    Rtds = []
   stars = None
 
   for arg in args:
@@ -43,6 +46,10 @@ def run(args):
 
   zs = list(set(z))
   zs.sort()
+
+  if not Rtds:
+    for _ in zs:
+      Rtds.append({'R':(1,0,0,1), 't':(0,0), 'd':0, 'n':0, 'dt':0})
 
   assert len(Rtds) == len(zs)
 
