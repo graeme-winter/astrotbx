@@ -133,7 +133,7 @@ def matcher(reference, moving, params):
   ann.query(mxy.as_double().as_1d())
   distances = flex.sqrt(ann.distances)
 
-  matches = (distances < params.far) & (distances > params.close)
+  matches = (distances < params.far) & (distances >= params.close)
 
   xyr = flex.vec2_double()
   xym = flex.vec2_double()
