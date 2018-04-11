@@ -51,7 +51,7 @@ def run(args):
 
   z = stars['xyzobs.px.value'].parts()[2].iround()
 
-  zs = map(int, list(set(z)))
+  zs = list(set(z))
   zs.sort()
 
   Rtds = []
