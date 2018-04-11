@@ -49,7 +49,7 @@ def run(args):
     else:
       stars.extend(tmp_stars)
 
-  z = stars['xyzobs.px.value'].parts()[2].iround()
+  z = flex.floor(stars['xyzobs.px.value'].parts()[2]).iround()
 
   zs = list(set(z))
   zs.sort()
