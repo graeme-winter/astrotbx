@@ -49,9 +49,9 @@ def run(args):
     else:
       stars.extend(tmp_stars)
 
-  z = stars['xyzobs.px.value'].parts()[2]
+  z = stars['xyzobs.px.value'].parts()[2].iround()
 
-  zs = list(set(z))
+  zs = map(int, list(set(z)))
   zs.sort()
 
   Rtds = []
@@ -65,6 +65,7 @@ def run(args):
   for j in range(len(zs) - 1):
     _r = zs[j]
     _z = zs[j+1]
+
     datum = stars.select(z == _r)
     move = stars.select(z == _z)
 
