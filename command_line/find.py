@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function
 import iotbx.phil
 
 phil_scope = iotbx.phil.parse("""
+  hot = false
+    .type = bool
   gain = 10.0
     .type = float
   min_size = 3
@@ -30,7 +32,7 @@ def run(args):
 
   from astrotbx.input_output.loader import load_image_gs, load_raw_image_gs
   from astrotbx.input_output.info import info
-  from astrotbx.algorithms.star_find import find
+  from astrotbx.algorithms.star_find import find, hot
   from dials.array_family import flex
 
   all = None
@@ -38,6 +40,21 @@ def run(args):
   raws = ['arw']
 
   t0 = 0.0
+  common_hot = None
+
+  if params.hot:
+    for j, arg in enumerate(args):
+      exten = arg.split('.')[-1].lower()
+      if exten in raws:
+        image = load_raw_image_gs(arg, params.raw)
+      else:
+        image = load_image_gs(arg)
+      hot_pixels = hot(image, params)
+      if common_hot is None:
+        common_hot = hot_pixels
+      else:
+        common_hot = common_hot & hot_pixels
+    print("%d hot pixels found" % common_hot.count(True))
 
   for j, arg in enumerate(args):
     exten = arg.split('.')[-1].lower()
@@ -46,7 +63,10 @@ def run(args):
     else:
       image = load_image_gs(arg)
     timestamp = info(arg)['timestamp']
-    stars = find(image, params)
+    if common_hot:
+      stars = find(image, params, mask=~common_hot)
+    else:
+      stars = find(image, params)
     print("On %s found %d stars" % (arg, stars.size()))
     if all is None:
       stars['timestamp'] = flex.double(stars.size(), 0.0)

@@ -1,6 +1,20 @@
 from __future__ import absolute_import, division, print_function
 
-def find(greyscale_flex, params):
+def hot(greyscale_flex, params):
+  '''Find hot pixels in the image (returns flex bool).'''
+  from dials.algorithms.spot_finding.threshold import \
+    DispersionThresholdStrategy
+  from dials.array_family import flex
+
+  thresholder = DispersionThresholdStrategy(gain=params.gain)
+  mask = flex.bool(greyscale_flex.size(), True)
+  mask.reshape(flex.grid(*greyscale_flex.focus()))
+
+  threshold_mask = thresholder(greyscale_flex, mask=mask)
+
+  return threshold_mask
+
+def find(greyscale_flex, params, mask=None):
   '''Find stars on input greyscale flex image.'''
 
   from dials.algorithms.spot_finding.threshold import \
@@ -10,7 +24,8 @@ def find(greyscale_flex, params):
   from dials.array_family import flex
 
   thresholder = DispersionThresholdStrategy(gain=params.gain)
-  mask = flex.bool(greyscale_flex.size(), True)
+  if not mask:
+    mask = flex.bool(greyscale_flex.size(), True)
   mask.reshape(flex.grid(*greyscale_flex.focus()))
 
   threshold_mask = thresholder(greyscale_flex, mask=mask)
