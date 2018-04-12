@@ -49,12 +49,12 @@ def run(args):
                            data_min=-0.5, data_max=n+0.5, n_slots=n+1)
   for c, v in zip(h_total.slot_centers(), h_total.slots()):
     print(c, v)
-  h_total.reshape(flex.grid(*image.focus()))
+  total.reshape(flex.grid(*image.focus()))
 
   if params.output:
     import cPickle as pickle
     with open(params.output, 'w') as fout:
-      pickle.dump(h_total, fout, protocol=pickle.HIGHEST_PROTOCOL)
+      pickle.dump(total, fout, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
   import sys
