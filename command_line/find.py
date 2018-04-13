@@ -3,8 +3,10 @@ from __future__ import absolute_import, division, print_function
 import iotbx.phil
 
 phil_scope = iotbx.phil.parse("""
-  hot = false
-    .type = bool
+  hot = None
+    .type = path
+  hot_threshold = 0
+    .type = int
   gain = 10.0
     .type = float
   min_size = 3
@@ -43,17 +45,10 @@ def run(args):
   common_hot = None
 
   if params.hot:
-    for j, arg in enumerate(args):
-      exten = arg.split('.')[-1].lower()
-      if exten in raws:
-        image = load_raw_image_gs(arg, params.raw)
-      else:
-        image = load_image_gs(arg)
-      hot_pixels = hot(image, params)
-      if common_hot is None:
-        common_hot = hot_pixels
-      else:
-        common_hot = common_hot & hot_pixels
+    import cPickle as pickle
+    with open(params.hot) as f:
+      hot_map = pickle.load(f)
+      common_hot = hot_map > params.hot_threshold
     print("%d hot pixels found" % common_hot.count(True))
 
   for j, arg in enumerate(args):
