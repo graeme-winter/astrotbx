@@ -47,8 +47,10 @@ def run(args):
       total += signal.as_int()
   h_total = flex.histogram(total.as_double(),
                            data_min=-0.5, data_max=n+0.5, n_slots=n+1)
+
   for c, v in zip(h_total.slot_centers(), h_total.slots()):
     print(c, v)
+
   total.reshape(flex.grid(*image.focus()))
 
   if params.output:
