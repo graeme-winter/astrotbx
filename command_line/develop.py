@@ -14,41 +14,48 @@ phil_scope = iotbx.phil.parse("""
   include scope astrotbx.input_output.saver.phil_scope
 """, process_includes=True)
 
+
 def run(args):
-  from dials.util.options import OptionParser
-  import libtbx.load_env
-  import json
+    from dials.util.options import OptionParser
+    import libtbx.load_env
+    import json
 
-  usage = "%s [options] DSC03206.jpg" % (
-    libtbx.env.dispatcher_name)
+    usage = "%s [options] DSC03206.jpg" % (
+        libtbx.env.dispatcher_name)
 
-  parser = OptionParser(
-    usage=usage,
-    phil=phil_scope)
+    parser = OptionParser(
+        usage=usage,
+        phil=phil_scope)
 
-  params, options, args = parser.parse_args(show_diff_phil=True,
-                                            return_unhandled=True)
+    params, options, args = parser.parse_args(show_diff_phil=True,
+                                              return_unhandled=True)
 
-  import cPickle as pickle
-  from dials.array_family import flex
+    import cPickle as pickle
+    from dials.array_family import flex
 
-  with open(params.data) as fin:
-    sum_image_r, sum_image_g, sum_image_b = pickle.load(fin)
+    with open(params.data) as fin:
+        sum_image_r, sum_image_g, sum_image_b = pickle.load(fin)
 
-  if params.data_min:
-    sum_image_r -= params.data_min
-    sum_image_g -= params.data_min
-    sum_image_b -= params.data_min
+    if params.data_min:
+        sum_image_r -= params.data_min
+        sum_image_g -= params.data_min
+        sum_image_b -= params.data_min
 
-  sum_image_r *= params.scale
-  sum_image_g *= params.scale
-  sum_image_b *= params.scale
+    sum_image_r *= params.scale
+    sum_image_g *= params.scale
+    sum_image_b *= params.scale
 
-  # output the image
+    # output the image
 
-  from astrotbx.input_output.saver import save_image
-  save_image(params.output, sum_image_r, sum_image_g, sum_image_b, params.png)
+    from astrotbx.input_output.saver import save_image
+    save_image(
+        params.output,
+        sum_image_r,
+        sum_image_g,
+        sum_image_b,
+        params.png)
+
 
 if __name__ == '__main__':
-  import sys
-  run(sys.argv[1:])
+    import sys
+    run(sys.argv[1:])

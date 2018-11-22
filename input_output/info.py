@@ -1,19 +1,20 @@
 from __future__ import absolute_import, division, print_function
 
+
 def info(filename):
-  '''Generate information from EXIF headers.'''
+    '''Generate information from EXIF headers.'''
 
-  import exifread
-  import datetime
-  import calendar
+    import exifread
+    import datetime
+    import calendar
 
-  ts = 'EXIF DateTimeOriginal'
+    ts = 'EXIF DateTimeOriginal'
 
-  result = { }
+    result = {}
 
-  with open(filename) as f:
-    tags = exifread.process_file(f, details=False, stop_tag=ts)
-    dt = datetime.datetime.strptime(str(tags[ts]), '%Y:%m:%d %H:%M:%S')
-    result['timestamp'] = calendar.timegm(dt.timetuple())
+    with open(filename) as f:
+        tags = exifread.process_file(f, details=False, stop_tag=ts)
+        dt = datetime.datetime.strptime(str(tags[ts]), '%Y:%m:%d %H:%M:%S')
+        result['timestamp'] = calendar.timegm(dt.timetuple())
 
-  return result
+    return result
